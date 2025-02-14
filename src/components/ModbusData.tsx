@@ -17,8 +17,8 @@ const ModbusData = () => {
     setSlaveIdError(null) // Reset the slave ID error message
 
     // Validation for number of registers
-    if (numRegisters && numRegisters > 10) {
-      setRegistersError('The number of registers cannot be more than 10.')
+    if (numRegisters && (numRegisters > 10 || numRegisters < 1)) {
+      setRegistersError('The number of registers must be between 1 and 10.')
       setLoading(false)
       return
     }
@@ -39,6 +39,9 @@ const ModbusData = () => {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/modbus/master/read?slaveId=${slaveId}&address=${address}&numRegisters=${registersToFetch}`
       )
+      console.log(
+        `Fetching: ${import.meta.env.VITE_API_URL}/modbus/master/read?slaveId=${slaveId}&address=${address}&numRegisters=${registersToFetch}`
+      )
 
       if (!response.ok) {
         throw new Error('Failed to fetch data')
@@ -46,12 +49,12 @@ const ModbusData = () => {
 
       const result = await response.json()
 
-      // Log the result to check the structure
-      console.log(result)
+      // Log the full result to inspect the structure
+      console.log('API Response:', result)
 
-      if (Array.isArray(result.values)) {
-        // Store the values directly into state
-        setData(result.values)
+      if (Array.isArray(result.registerValues)) {
+        // Store the registerValues directly into state
+        setData(result.registerValues)
       } else {
         throw new Error('Invalid data structure returned from the API')
       }
