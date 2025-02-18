@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import '.././styles/Coil.css' // Reuse the same CSS for consistency
-
+import ReusableButton from './ReusableButton'
+import '../styles/Error.css'
 const ModbusData = () => {
   const [address, setAddress] = useState<number>(0) // Required, default to 0
   const [numRegisters, setNumRegisters] = useState<number>(10) // Required, default to 1
@@ -139,7 +140,7 @@ const ModbusData = () => {
           {registersError && (
             <p className='modbus-data__error'>{registersError}</p>
           )}
-          <button
+          {/* <button
             className={`fetch-coil ${isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'}`}
             onClick={() => {
               if (isAutoRefreshEnabled) {
@@ -155,7 +156,17 @@ const ModbusData = () => {
               : isAutoRefreshEnabled
                 ? 'Stop Auto-Refresh'
                 : 'Start Auto-Refresh'}
-          </button>
+          </button> */}
+          <ReusableButton
+            onClick={() => setIsAutoRefreshEnabled(!isAutoRefreshEnabled)}
+            label={
+              isAutoRefreshEnabled ? 'Stop Auto-Refresh' : 'Start Auto-Refresh'
+            }
+            disabled={loading}
+            className={
+              isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'
+            }
+          />
         </div>
       </div>
 
@@ -165,7 +176,7 @@ const ModbusData = () => {
             <table>
               <thead>
                 <h3 className='display-fix'>
-                  Register Values: <br />{' '}
+                  Register Values: <br />
                   {selectedAddress === null && selectedValue === null && (
                     <span className='instruction-text'>
                       Click on an address to see details.
@@ -204,8 +215,13 @@ const ModbusData = () => {
                   </tr>
                 )}
               </tfoot>
+              {!loading && error && (
+                <div className='modbus-data__error-container'>
+                  <span className='error-icon'>⚠️</span>
+                  <p className='modbus-data__error'>Error: {error}</p>
+                </div>
+              )}
             </table>
-            {error && <p className='modbus-data__error'>Error: {error}</p>}
           </div>
         )}
       </div>
