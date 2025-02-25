@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import '.././styles/Coil.css'
-
+// import '../styles/ReusableButton.css'
+import ReusableButton from './ReusableButton'
 interface CoilReadResponse {
   coilValues: Record<string, string>
 }
@@ -12,6 +13,7 @@ const CoilDataFetch = () => {
   const [coilData, setCoilData] = useState<Map<number, string> | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [coilError, setCoilError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] =
     useState<boolean>(true)
   const [, setSelectedAddress] = useState<number | null>(null) // Track selected address
@@ -30,8 +32,7 @@ const CoilDataFetch = () => {
     }
 
     setLoading(true)
-    setCoilError(null)
-    setCoilData(null)
+    setError(null)
 
     try {
       const response = await fetch(
@@ -53,9 +54,11 @@ const CoilDataFetch = () => {
       }
 
       setCoilData(coilValues)
+      setCoilError(null) // Clear any previous errors
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setCoilError('Error fetching coil data')
+    } catch (err) {
+      setError('Error fetching coil data')
+      //setCoilData(null) // Reset coil data on error
     } finally {
       setLoading(false)
     }
@@ -68,7 +71,7 @@ const CoilDataFetch = () => {
     if (isAutoRefreshEnabled) {
       const interval = setInterval(() => {
         fetchCoilData()
-      }, 1000) // Refresh every 3 seconds
+      }, 1000) // Refresh every 1 second
 
       return () => clearInterval(interval) // Cleanup on unmount
     }
@@ -121,8 +124,8 @@ const CoilDataFetch = () => {
             }}
           />
           {coilError && <p className='modbus-data__error'>{coilError}</p>}
-          <button
-            className={`fetch-coil ${isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'}`}
+          {/* <button
+            className={`btn ${isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'}`}
             onClick={() => {
               if (isAutoRefreshEnabled) {
                 setIsAutoRefreshEnabled(false) // Stop auto-refresh if active
@@ -137,21 +140,35 @@ const CoilDataFetch = () => {
               : isAutoRefreshEnabled
                 ? 'Stop Auto-Refresh'
                 : 'Start Auto-Refresh'}
-          </button>
+          </button> */}
+          <ReusableButton
+            onClick={() => setIsAutoRefreshEnabled(!isAutoRefreshEnabled)}
+            label={
+              isAutoRefreshEnabled ? 'Stop Auto-Refresh' : 'Start Auto-Refresh'
+            }
+            disabled={loading}
+            className={
+              isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'
+            }
+          />
         </div>
       </div>
 
       <div className='table-section'>
-        {coilData && (
-          <div className='coil-data-container'>
+        <div className='coil-data-container'>
+          <h3 className='display-fix'>Coil Values:</h3>
+          {!loading && error && (
+            <div className='modbus-data__error-container'>
+              <span className='error-icon'>⚠️</span>
+              <p className='modbus-data__error'>Error: {error}</p>
+            </div>
+          )}
+          {coilData ? (
             <table>
-              <thead>
-                <h3 className='display-fix'>Coil Values:</h3>
-              </thead>
               <tbody className='tbody coil-body'>
-                {Array.from({ length: Math.max(10, count) }).map((_, index) => {
+                {Array.from({ length: count }).map((_, index) => {
                   const address = startAddress + index
-                  const value = coilData?.get(address) ?? 'Loading...'
+                  const value = coilData.get(address) ?? 'Loading...'
                   const rowColor =
                     value === 'OFF'
                       ? 'red'
@@ -161,10 +178,7 @@ const CoilDataFetch = () => {
 
                   return (
                     <tr key={address} className='data-td'>
-                      <td
-                        className=' clickable'
-                        onClick={() => handleAddressClick(address, value)}
-                      >
+                      <td onClick={() => handleAddressClick(address, value)}>
                         {address}
                       </td>
                       <td style={{ backgroundColor: rowColor }}>{value}</td>
@@ -173,11 +187,10 @@ const CoilDataFetch = () => {
                 })}
               </tbody>
             </table>
-            <div>
-              {coilError && <p className='modbus-data__error'>{coilError}</p>}
-            </div>
-          </div>
-        )}
+          ) : (
+            <p className='modbus-data__error'>No coil data available.</p>
+          )}
+        </div>
       </div>
     </section>
   )
