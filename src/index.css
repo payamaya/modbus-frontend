@@ -53,9 +53,7 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-table {
-  width: 100%;
-}
+
 .modbus-data__table-header,
 .modbus-data__table-cell {
   border: 1px solid #000; /* Adds a black border */

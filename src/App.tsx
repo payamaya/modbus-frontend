@@ -1,4 +1,5 @@
 import './App.css'
+import ModbusCoil from './components/ModbusCoil.tsx'
 import ModbusData from './components/ModbusData.tsx'
 // import ModbusDataPost from './components/ModbusDataPost.tsx'
 function App() {
@@ -12,6 +13,7 @@ function App() {
         slaveId={1}
         address={0}
       /> */}
+      <ModbusCoil />
     </>
   )
 }
