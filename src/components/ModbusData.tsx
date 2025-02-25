@@ -44,10 +44,10 @@ const ModbusData = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/modbus/master/read?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
+        `${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
       )
       console.log(
-        `Fetching: ${import.meta.env.VITE_API_URL}/modbus/master/read?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
+        `Fetching: ${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
       )
 
       if (!response.ok) {
