@@ -1,6 +1,7 @@
 import './App.css'
 import ModbusCoil from './components/ModbusCoil.tsx'
 import ModbusData from './components/ModbusData.tsx'
+import ModbusDiscrete from './components/ModbusDiscrete.tsx'
 // import ModbusDataPost from './components/ModbusDataPost.tsx'
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         address={0}
       /> */}
       <ModbusCoil />
+      <ModbusDiscrete />
     </>
   )
 }
