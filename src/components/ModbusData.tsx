@@ -3,22 +3,22 @@ import '.././styles/Coil.css' // Reuse the same CSS for consistency
 import ReusableButton from './ReusableButton'
 import '../styles/Error.css'
 const ModbusData = () => {
-  const [address, setAddress] = useState<number>(0) // Required, default to 0
-  const [numRegisters, setNumRegisters] = useState<number>(10) // Required, default to 1
+  const [startAddress, setAddress] = useState<number>(0) // Required, default to 0
+  const [count, setNumRegisters] = useState<number>(10) // Required, default to 1
   const [data, setData] = useState<number[] | null>(null) // Store fetched data directly as an array
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [registersError, setRegistersError] = useState<string | null>(null) // For numRegisters error
-  const [selectedAddress, setSelectedAddress] = useState<number | null>(null) // Store clicked address
-  const [selectedValue, setSelectedValue] = useState<number | null>(null) // Store the value of the clicked address
+  const [registersError, setRegistersError] = useState<string | null>(null) // For count error
+  const [selectedAddress, setSelectedAddress] = useState<number | null>(null) // Store clicked startAddress
+  const [selectedValue, setSelectedValue] = useState<number | null>(null) // Store the value of the clicked startAddress
   const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] =
     useState<boolean>(true) // Auto-refresh toggle
 
   const SLAVE_ID = 1 // Fixed at 1
-  const MAX_ADDRESS = 200 // Maximum address limit
+  const MAX_ADDRESS = 200 // Maximum startAddress limit
 
-  // Calculate dynamic max start address
-  const maxStartAddress = MAX_ADDRESS - numRegisters
+  // Calculate dynamic max start startAddress
+  const maxStartAddress = MAX_ADDRESS - count
 
   // Memoized fetchData function
   const fetchData = useCallback(async () => {
@@ -27,7 +27,7 @@ const ModbusData = () => {
     setRegistersError(null) // Reset error message
 
     // Validation for number of registers
-    if (numRegisters < 1 || numRegisters > MAX_ADDRESS) {
+    if (count < 1 || count > MAX_ADDRESS) {
       setRegistersError(
         `The number of registers must be between 1 and ${MAX_ADDRESS}.`
       )
@@ -35,8 +35,8 @@ const ModbusData = () => {
       return
     }
 
-    // Validation for address
-    if (address < 0 || address > maxStartAddress) {
+    // Validation for startAddress
+    if (startAddress < 0 || startAddress > maxStartAddress) {
       setRegistersError(`Address must be between 0 and ${maxStartAddress}.`)
       setLoading(false)
       return
@@ -44,10 +44,10 @@ const ModbusData = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
+        `${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&startAddress=${startAddress}&count=${count}`
       )
       console.log(
-        `Fetching: ${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&address=${address}&numRegisters=${numRegisters}`
+        `Fetching: ${import.meta.env.VITE_API_URL}/modbus/master/read-registers?slaveId=${SLAVE_ID}&startAddress=${startAddress}&count=${count}`
       )
 
       if (!response.ok) {
@@ -67,7 +67,7 @@ const ModbusData = () => {
     } finally {
       setLoading(false)
     }
-  }, [address, numRegisters, maxStartAddress, SLAVE_ID])
+  }, [startAddress, count, maxStartAddress, SLAVE_ID])
 
   useEffect(() => {
     // Fetch data initially when the component mounts
@@ -76,7 +76,7 @@ const ModbusData = () => {
     if (isAutoRefreshEnabled) {
       const interval = setInterval(() => {
         fetchData()
-      }, 1000) // Refresh every 4 seconds
+      }, 1500) // Refresh every 4 seconds
 
       return () => clearInterval(interval) // Cleanup on unmount
     }
@@ -84,18 +84,18 @@ const ModbusData = () => {
 
   useEffect(() => {
     if (selectedAddress !== null && data) {
-      const index = selectedAddress - address
+      const index = selectedAddress - startAddress
       if (index >= 0 && index < data.length) {
         setSelectedValue(data[index]) // Update selectedValue
       } else {
         setSelectedValue(null) // Reset if selectedAddress is out of range
       }
     }
-  }, [data, selectedAddress, address])
+  }, [data, selectedAddress, startAddress])
   // Click handler for table row
   const handleAddressClick = (clickedAddress: number, value: number) => {
     setSelectedAddress(clickedAddress)
-    setSelectedValue(value) // Set the value associated with the clicked address
+    setSelectedValue(value) // Set the value associated with the clicked startAddress
     console.log('Clicked Address:', clickedAddress, 'Value:', value)
   }
 
@@ -110,9 +110,9 @@ const ModbusData = () => {
           <input
             type='number'
             min={0}
-            max={maxStartAddress} // Limit address dynamically
+            max={maxStartAddress} // Limit startAddress dynamically
             required
-            value={address}
+            value={startAddress}
             onChange={(e) => {
               const value = Number(e.target.value)
               if (value >= 0 && value <= maxStartAddress) {
@@ -128,7 +128,7 @@ const ModbusData = () => {
             max={124} // Backend limit
             step='1'
             required
-            value={numRegisters}
+            value={count}
             onChange={(e) => {
               const value = Number(e.target.value)
               if (value >= 1 && value <= 124) {
@@ -140,23 +140,6 @@ const ModbusData = () => {
           {registersError && (
             <p className='modbus-data__error'>{registersError}</p>
           )}
-          {/* <button
-            className={`fetch-coil ${isAutoRefreshEnabled ? 'auto-refresh-on' : 'auto-refresh-off'}`}
-            onClick={() => {
-              if (isAutoRefreshEnabled) {
-                setIsAutoRefreshEnabled(false) // Stop auto-refresh if active
-              } else {
-                setIsAutoRefreshEnabled(true) // Enable auto-refresh
-              }
-            }}
-            disabled={loading}
-          >
-            {loading
-              ? 'Loading...'
-              : isAutoRefreshEnabled
-                ? 'Stop Auto-Refresh'
-                : 'Start Auto-Refresh'}
-          </button> */}
           <ReusableButton
             onClick={() => setIsAutoRefreshEnabled(!isAutoRefreshEnabled)}
             label={
@@ -179,14 +162,14 @@ const ModbusData = () => {
                   Register Values: <br />
                   {selectedAddress === null && selectedValue === null && (
                     <span className='instruction-text'>
-                      Click on an address to see details.
+                      Click on an startAddress to see details.
                     </span>
                   )}
                 </h3>
               </thead>
               <tbody className='tbody coil-body'>
                 {data.map((value, index) => {
-                  const rowAddress = Number(address) + index
+                  const rowAddress = Number(startAddress) + index
                   return (
                     <tr key={rowAddress}>
                       <td
@@ -199,11 +182,11 @@ const ModbusData = () => {
                     </tr>
                   )
                 })}
-                {/* Conditionally render the selected address and value */}
+                {/* Conditionally render the selected startAddress and value */}
               </tbody>
               <tfoot>
                 {selectedAddress !== null && selectedValue !== null && (
-                  <tr className='selected-address fix'>
+                  <tr className='selected-startAddress fix'>
                     <td className='tfoot-td'>
                       Address: <strong>{selectedAddress}</strong>
                       <br />

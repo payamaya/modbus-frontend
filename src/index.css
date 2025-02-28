@@ -11,6 +11,19 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background: #000000;
+  --skeleton: rgba(197, 197, 197, 0.85);
+  --border-color: #fbfbfb;
+  --backgroundPrice: #010101;
+  --error: rgb(255, 0, 0);
+  --bg-off: rgb(255, 0, 0);
+  --text-color: #ffffff;
+  --off-color: #d10000;
+  --error-color: #ad0000;
+  --loading-color: #bf05a3;
+  --on-color: #009608;
+  --bg-on: #009608;
 }
 
 a {
@@ -56,18 +69,18 @@ button:focus-visible {
 
 .modbus-data__table-header,
 .modbus-data__table-cell {
-  border: 1px solid #000; /* Adds a black border */
-  padding: 8px; /* Adds padding for readability */
-  text-align: center; /* Centers text inside cells */
+  border: 1px solid #000;
+  padding: 8px;
+  text-align: center;
 }
 
 .modbus-data__table-header {
-  background-color: #fca7a7; /* Light gray background for headers */
-  font-weight: bold; /* Makes header text bold */
+  background-color: #fca7a7;
+  font-weight: bold;
 }
 
 .modbus-data__table-cell {
-  background-color: #ff6767; /* White background for data cells */
+  background-color: #ff6767;
 }
 @media (prefers-color-scheme: light) {
   :root {

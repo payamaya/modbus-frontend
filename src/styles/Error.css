@@ -1,8 +1,8 @@
 /* Error  */
 .modbus-data__error-container {
   display: flex;
-  background-color: #ff4d4d;
-  color: #fff;
+  background-color: var(--error);
+  color: var(--text-color);
   padding: 12px;
   border-radius: 8px;
   font-weight: bold;
@@ -11,8 +11,9 @@
   animation: fadeIn 0.5s ease-in-out;
   text-align: center;
   position: absolute;
-  margin-top: 6rem;
-  width: 330px;
+  margin-top: 1rem;
+  width: fit-content;
+  z-index: 1;
 }
 
 /* Error Icon */
@@ -39,4 +40,11 @@
     font-size: 14px;
     padding: 10px;
   }
+}
+.error-section {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
 }

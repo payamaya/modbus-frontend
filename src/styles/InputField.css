@@ -1,0 +1,68 @@
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-field input {
+  padding: 6px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  max-width: 80px;
+}
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.error-msg {
+  color: var(--error-color);
+  font-weight: bold;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background);
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+.loading {
+  color: var(--loading-color);
+  font-weight: bold;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+/* HTML: <div class="loader"></div> */
+.loader {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  width: 10ch;
+  font-weight: bold;
+  font-family: sans-serif;
+  font-size: 30px;
+  padding-bottom: 8px;
+  background: linear-gradient(currentColor 0 0) 0 100%/0% 3px no-repeat;
+  animation: l2 2s linear infinite;
+}
+.loader:before {
+  content: 'Loading...';
+}
+@keyframes l2 {
+  to {
+    background-size: 100% 3px;
+  }
+}
