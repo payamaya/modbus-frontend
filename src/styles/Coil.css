@@ -45,12 +45,6 @@
   overflow: auto;
 }
 
-.inputs {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .display-fix {
   position: sticky;
   top: 0;
@@ -64,20 +58,11 @@
   justify-content: center;
   flex-direction: column;
   z-index: 1; /* Ensure the header stays above the tbody */
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 10px;
 }
 
-.fix {
-  position: sticky;
-  bottom: 0;
-  backdrop-filter: blur(10px);
-  /* width: 327px; */
-  height: 50px;
-  display: flex;
-  align-content: center;
-  align-items: center;
-  justify-content: center;
-  z-index: 1; /* Ensure the footer stays above the tbody */
-}
 tfoot > tr > td {
   border: none;
   display: flex;
@@ -113,15 +98,15 @@ button {
   transition: background-color 0.3s ease-in-out;
 }
 
-.fetch-coil.auto-refresh-on {
+/* .fetch-coil.auto-refresh-on {
   border: 2px solid white;
-  background-color: rgb(179, 9, 9); /* Dark Red */
+  background-color: rgb(179, 9, 9); 
 }
 
 .fetch-coil.auto-refresh-off {
   border: 2px solid white;
   background-color: rgb(0, 67, 0);
-}
+} */
 
 .fetch-coil:disabled {
   background-color: black;
@@ -206,9 +191,10 @@ thead {
   border: 2px solid white;
   border-radius: 8px;
 }
-
 .inputs {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
   align-items: center;
   justify-content: center;
 }
@@ -232,4 +218,5 @@ thead {
 .clickable:hover {
   background-color: aliceblue;
   color: #010101;
+  cursor: pointer;
 }
