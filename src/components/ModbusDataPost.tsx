@@ -5,7 +5,7 @@ import InputField from './InputField'
 const ModbusDataPost = () => {
   const [slaveId] = useState<number>(1)
   const [startAddress, setAddress] = useState<number | ''>('')
-  const [count, setValue] = useState<number | ''>('')
+  const [registerValue, setValue] = useState<number | ''>('')
   const [responseMessage, setResponseMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +25,7 @@ const ModbusDataPost = () => {
 
   const sendData = async () => {
     // Validate inputs
-    if (startAddress === '' || count === '') {
+    if (startAddress === '' || registerValue === '') {
       setError('All fields (Address and Value) are required.')
       return
     }
@@ -33,7 +33,7 @@ const ModbusDataPost = () => {
       setError(`Address must be between ${MIN_ADDRESS} and ${MAX_ADDRESS}.`)
       return
     }
-    if (count < 0) {
+    if (registerValue < 0) {
       setError('Register value cannot be negative.')
       return
     }
@@ -42,7 +42,7 @@ const ModbusDataPost = () => {
 
     try {
       // Construct the URL with query parameters
-      const apiUrl = `${import.meta.env.VITE_API_URL}/modbus/slave/write-single?slaveId=${slaveId}&startAddress=${startAddress}&count=${count}`
+      const apiUrl = `${import.meta.env.VITE_API_URL}/modbus/slave/write-single?slaveId=${slaveId}&startAddress=${startAddress}&registerValue=${registerValue}`
       console.log('API URL:', apiUrl) // Log the URL for debugging
 
       const response = await fetch(apiUrl, {
@@ -107,8 +107,8 @@ const ModbusDataPost = () => {
           <InputField
             label={'Value'}
             type={'number'}
-            name={'count'}
-            value={count}
+            name={'registerValue'}
+            value={registerValue}
             onChange={(e) => {
               const value = e.target.value ? Number(e.target.value) : ''
               if (value === '' || value >= 0) {
