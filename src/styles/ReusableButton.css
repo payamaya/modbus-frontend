@@ -1,0 +1,20 @@
+.btn.auto-refresh-on {
+  border: 2px solid var(--border-color);
+  color: var(--text);
+  background-color: var(--bg-off);
+  width: 200px;
+  height: 100px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+.btn.auto-refresh-off {
+  border: 2px solid var(--border-color);
+  color: var(--text);
+  background-color: var(--bg-on);
+  width: 200px;
+  height: 100px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}

@@ -1,140 +1,137 @@
-// import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import ReusableButton from './ReusableButton'
+import InputField from './InputField'
 
-// // Reusable Input Component
-// const ModbusInput = ({
-//   label,
-//   name,
-//   value,
-//   onChange,
-// }: {
-//   label: string
-//   name: string
-//   value: number | ''
-//   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-// }) => (
-//   <div className='modbus-input'>
-//     <label className='modbus-data__label'>{label}:</label>
-//     <input
-//       type='number'
-//       min='0'
-//       step='1'
-//       name={name}
-//       value={value}
-//       onChange={onChange}
-//       className='modbus-data__input'
-//     />
-//   </div>
-// )
+const ModbusDataPost = () => {
+  const [slaveId] = useState<number>(1)
+  const [startAddress, setAddress] = useState<number | ''>('')
+  const [registerValue, setValue] = useState<number | ''>('')
+  const [responseMessage, setResponseMessage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-// const ModbusDataPost = ({
-//   apiUrl = 'http://localhost:8080/modbus/slave/write',
-// }) => {
-//   // Use a single state object for form fields
-//   const [formData, setFormData] = useState({
-//     slaveId: '' as number | '',
-//     address: '' as number | '',
-//     value: '' as number | '',
-//   })
-//   const [responseMessage, setResponseMessage] = useState<string | null>(null)
-//   const [loading, setLoading] = useState(false)
-//   const [error, setError] = useState<string | null>(null)
+  // Constants for validation
+  const MIN_ADDRESS = 0 // Minimum allowed startAddress
+  const MAX_ADDRESS = 200 // Maximum allowed startAddress (adjust as needed)
 
-//   // Handle form input changes dynamically
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value ? Number(e.target.value) : '',
-//     })
-//   }
+  useEffect(() => {
+    if (responseMessage) {
+      const timer = setTimeout(() => {
+        setResponseMessage(null)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [responseMessage])
 
-//   // Function to send Modbus data
-//   const sendData = async () => {
-//     if (!formData.slaveId || !formData.address || !formData.value) {
-//       setError('All fields (Slave ID, Address, and Value) are required')
-//       return
-//     }
+  const sendData = async () => {
+    // Validate inputs
+    if (startAddress === '' || registerValue === '') {
+      setError('All fields (Address and Value) are required.')
+      return
+    }
+    if (startAddress < MIN_ADDRESS || startAddress > MAX_ADDRESS) {
+      setError(`Address must be between ${MIN_ADDRESS} and ${MAX_ADDRESS}.`)
+      return
+    }
+    if (registerValue < 0) {
+      setError('Register value cannot be negative.')
+      return
+    }
+    setLoading(true)
+    setError(null)
 
-//     setLoading(true)
-//     setError(null)
+    try {
+      // Construct the URL with query parameters
+      const apiUrl = `${import.meta.env.VITE_API_URL}/modbus/slave/write-single?slaveId=${slaveId}&startAddress=${startAddress}&registerValue=${registerValue}`
+      console.log('API URL:', apiUrl) // Log the URL for debugging
 
-//     try {
-//       const requestData = {
-//         slaveId: formData.slaveId,
-//         address: formData.address,
-//         value: formData.value,
-//       }
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+      })
 
-//       const response = await fetch(apiUrl, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json', // Ensure backend accepts JSON
-//         },
-//         body: JSON.stringify(requestData), // Send data in body as JSON
-//       })
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`)
+      }
 
-//       console.log('Response status:', response.status)
+      // Parse the response as JSON
+      const result = await response.text()
+      console.log('API Response:', result)
 
-//       if (!response.ok) {
-//         // If the response isn't OK, show an error
-//         setError(
-//           'Failed to send data. Server responded with status: ' +
-//             response.status
-//         )
-//         return
-//       }
+      // Set a custom success message
+      setResponseMessage('Data sent successfully')
+      setAddress('')
+      setValue('')
+    } catch (err) {
+      console.error('Error sending data:', err)
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError(
+          'Failed to connect to the server. Please check your network or backend server.'
+        )
+      } else {
+        setError(
+          `Failed to send data: ${err instanceof Error ? err.message : 'Unknown error'}`
+        )
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
-//       const result = await response.json() // Parse response as JSON
+  return (
+    <div className='container'>
+      <div className='input-section'>
+        <h2>Modbus Data Writer</h2>
+        <div className='inputs'>
+          <InputField
+            label={'Slave ID:'}
+            type={'number'}
+            name={'slaveId'}
+            value={slaveId}
+            onChange={() => {}}
+            disabled
+            max={1}
+          />
+          <InputField
+            label={'Address:'}
+            type={'number'}
+            name={'startAddress'}
+            value={startAddress}
+            onChange={(e) => {
+              const value = e.target.value !== '' ? Number(e.target.value) : ''
+              setAddress(value)
+              setError(null)
+            }}
+            min={MIN_ADDRESS}
+            max={MAX_ADDRESS}
+          />
+          <InputField
+            label={'Value'}
+            type={'number'}
+            name={'registerValue'}
+            value={registerValue}
+            onChange={(e) => {
+              const value = e.target.value ? Number(e.target.value) : ''
+              if (value === '' || value >= 0) {
+                setValue(value)
+                setError(null)
+              }
+            }}
+            min={0}
+          />
+        </div>
+        <ReusableButton
+          onClick={sendData}
+          className='modbus-data__button'
+          label='Send Data'
+        />
+        <section className='error-section'>
+          {loading && <p className='loader'></p>}
+          {error && <p className='error-msg'>{error}</p>}
+          {responseMessage && <p className='error-msg'>{responseMessage}</p>}
+        </section>
+      </div>
+    </div>
+  )
+}
 
-//       console.log('Response data:', result)
-
-//       if (result.error) {
-//         setError(result.error) // Handle any error from the backend
-//       } else {
-//         setResponseMessage('Data written successfully!')
-//       }
-//     } catch (err) {
-//       console.error('Fetch error:', err)
-//       setError('Failed to send data')
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-//   return (
-//     <div className='modbus-data'>
-//       <h2 className='modbus-data__title'>Modbus Data Writer</h2>
-//       <div className='modbus-data__controls'>
-//         <ModbusInput
-//           label='Slave ID'
-//           name='slaveId'
-//           value={formData.slaveId}
-//           onChange={handleChange}
-//         />
-//         <ModbusInput
-//           label='Address'
-//           name='address'
-//           value={formData.address}
-//           onChange={handleChange}
-//         />
-//         <ModbusInput
-//           label='Value'
-//           name='value'
-//           value={formData.value}
-//           onChange={handleChange}
-//         />
-
-//         <button onClick={sendData} className='modbus-data__button'>
-//           Send Data
-//         </button>
-//       </div>
-
-//       {loading && <p className='modbus-data__loading'>Loading...</p>}
-//       {error && <p className='modbus-data__error'>{error}</p>}
-//       {responseMessage && (
-//         <p className='modbus-data__success'>{responseMessage}</p>
-//       )}
-//     </div>
-//   )
-// }
-
-// export default ModbusDataPost
+export default ModbusDataPost
