@@ -59,7 +59,7 @@ const DiscreteDataFetch = () => {
       setDiscreteError(null) // Clear any previous errors
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError('Error fetching coil data')
+      setError('Error fetching discrete data')
       //setDiscreteData(null) // Reset coil data on error
     } finally {
       setLoading(false)
